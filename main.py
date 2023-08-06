@@ -27,7 +27,7 @@ async def get_ds(path: str, fs) -> xr.Dataset:
 
 async def main():
     fs = s3fs.S3FileSystem(asynchronous=True)
-    ds = await get_ds("s3://sensible-prod-weather/noaa/gefs/zarr/20230725/18/2_m_above_ground/TMP/", fs)
+    ds = await get_ds("s3://<YOUR-ZARR-STORE>", fs)
     return await ds._sel(lat=39.5, lon=-104.99, method="nearest")
 
 if __name__ == "__main__":

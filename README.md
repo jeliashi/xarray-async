@@ -16,4 +16,33 @@ Therefore, this solution offers a way to access stores with 0 context switching 
 The purpose of this project is to spur discussion about how to allow datasets to be accessed with a minimal no context switches in an async framework
 There is already async functionality in the fsspec project by introducing the `getitems` method to mapper objects but this project takes it a step further and exposes an async API through the entire chain of fsspec-zarr-xarray.
 
-This intentionally does not use `dask` because I'm not comfortable enough with dask to extend the needed `dask.array` components to make this project single-threaded.  
+This intentionally does not use `dask` because I'm not comfortable enough with dask to extend the needed `dask.array` components to make this project single-threaded.
+
+## example:
+```python
+
+import asyncio
+
+import s3fs
+import xarray as xr
+
+from src.fsspec.mapping.mapper import AsyncFSMap
+from src.xarray.backends.zarr import AsyncZarrBackendEntrypint
+
+entry_point = AsyncZarrBackendEntrypint()
+
+
+async def get_ds(path: str, fs) -> xr.Dataset:
+    mapper = AsyncFSMap(path, fs)
+    return await entry_point.open_dataset(mapper)
+
+
+async def main():
+    fs = s3fs.S3FileSystem(asynchronous=True)
+    ds = await get_ds("s3://<YOUR-CONSOLIDATED-ZARR-STORE>", fs)
+    return await ds._sel(**coordinate_selectors)
+
+if __name__ == "__main__":
+    ds = asyncio.run(main())
+    print(ds)
+```
